@@ -1,6 +1,6 @@
-# cg3 project
+# HFPD2 project
 #
-# Copyright (c) 2022, András Bodor <bodand@proton.me>
+# Copyright (c) 2023, András Bodor <bodand@proton.me>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ function(add_covered_test)
 
     add_executable("${test_name}" ${act_SOURCES})
     target_compile_features("${test_name}" PRIVATE cxx_std_20)
-    target_link_libraries("${test_name}" PRIVATE ${act_LIBRARIES})
+    target_link_libraries("${test_name}" PRIVATE internal-coverage internal-warnings ${act_LIBRARIES})
 
     if (act_CATCH OR act_CATCH_OWNMAIN)
         catch_discover_tests("${test_name}"
