@@ -45,8 +45,12 @@ say "Hello! I'm here to help you configure this new C++ project!";
 my $havegit = !!0;
 if (-d '.git') {
     $havegit = !!1;
-    opt name => qx/git config user.name/;
-    opt email => qx/git config user.email/;
+    my $name = qx/git config user.name/;
+    chomp $name;
+    opt name => $name;
+    my $email = qx/git config user.email/;
+    chomp $email;
+    opt email => $email;
 }
 
 # project input
@@ -129,7 +133,7 @@ find sub {
     return if $File::Find::name eq $0;
 
     my @lines;
-    if (tie @lines, 'Tie::File', "$pwd/$_") {
+    if (tie @lines, 'Tie::File', $File::Find::name) {
         for (@lines) {
             s,</([^/]+)/>,opt $1,ge;
         }
@@ -156,13 +160,22 @@ unless ($havegit) {
 # hooks
 if ($havegit) {
     say "Installing hooks for git";
-    system "hooks/install.pl";
+    system "perl hooks/install.pl";
 }
 else {
     say "Deleting hooks for you don't have a git repository.";
     remove_tree 'hooks';
 }
 
+# vcpkg
+if ($havegit) {
+    say "adding vcpkg submodule";
+    system "git submodule add https://github.com/microsoft/vcpkg vcpkg"
+}
+else {
+    say "cloning vcpkg";
+    system "git clone https://github.com/microsoft/vcpkg vcpkg"
+}
 
 # epilogue
 unless (opt 'keep') {
